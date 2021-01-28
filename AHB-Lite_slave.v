@@ -62,14 +62,12 @@ reg next_state [1:0];
 
 reg address [31:0];
 reg data_from_bus [31:0];
-reg data_from_memory [31:0];
 
 
 
 always @(posedge HCLK, negedge HRESETn) begin
     if(~HRESETn) begin
-        data_from_memory <= 32'b1;
-
+      
         HREADYOUT <= 1'b1;
         HRESP <= OKAY;
 
@@ -112,7 +110,7 @@ always @(*) begin
               if(HWRITE == WRITE_TO_SLAVE)
                 data_from_bus <= HWRITE;
               else
-                HRDATA <= data_from_memory;
+                HRDATA <= $random;
           end
      end
 
@@ -127,8 +125,10 @@ always @(*) begin
               else
                HRDATA <= data_from_memory;
           end
+     end
 
-  
+    endcase
+ end 
 
 
 endmodule

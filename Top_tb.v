@@ -19,7 +19,7 @@ reg idle;
 
 reg HREADY;
 reg HRESP;
-reg HRDATA;
+reg [31:0] HRDATA;
 
 wire [31:0] HADDR;
 wire HWRITE;
@@ -52,7 +52,7 @@ initial begin
 end
 
 initial begin
-    #200 $finish;
+    #240 $finish;
 end
 
 
@@ -60,16 +60,46 @@ initial begin
     #40 addr = 32'hAABB;
     data = 32'hAABB;
     write = 1'b1;
+    
     #20 addr = 32'hBBCC;
     data = 32'hBBCC;
     write = 1'b1;
+    
     #20 addr = 32'h00FF;
     write = 1'b0;
-    data = 32'h00FF;
+    HRDATA = 32'h00FF;
+    data = 32'hFF00;
+    
     #20 HREADY = 1'b1;
     write = 1'b1;
     addr = 32'h9999;
     data = 32'h9999;
+    
+    #10 HREADY = 1'b0;
+    
+    #10
+    write = 1'b1;
+    addr = 32'hACAC;
+    data = 32'hACAC;
+    
+    #20 addr = 32'hBF00;
+    write = 1'b0;
+    HRDATA = 32'hBF00;
+    data = 32'h00BF;
+
+    #10 HREADY = 1'b1;
+
+    #10  addr = 32'hCC00;
+    write = 1'b0;
+    HRDATA = 32'hCC00;
+    data = 32'h00CC;
+
+
+    #20  addr = 32'hAA00;
+    write = 1'b1;
+    data = 32'hAA00;
+    
+
 end
 
 endmodule

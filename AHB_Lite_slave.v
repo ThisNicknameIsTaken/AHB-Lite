@@ -6,7 +6,7 @@ module AHB_Lite_slave(HCLK, HRESETn, HSEL, HADDR, HWRITE, HSIZE, HBURST, HPROT, 
 
 parameter MEMORY_SIZE = 1024; //in bytes. 1kb is a minimum address space
 parameter MAX_HSIZE =  4; // BUS_WIDTH / MEM_SIZE (byte) =>  32 / 8 = 4
-localparam MAX_ADDR_REG = $clog2(MEMORY_SIZE);
+//localparam MAX_ADDR_REG = $clog2(MEMORY_SIZE);
 
 //--------------------INPUT---------------------
 //Global signals
@@ -59,7 +59,7 @@ reg [`BUS_WIDTH-1:0] paral_reg_for_data;
 reg [`BUS_WIDTH-1:0] paral_reg_for_addr;
 
 //slave registers
-reg [MAX_ADDR_REG:0] max_addr_calc;
+reg [32:0] max_addr_calc;
 reg error;
 reg [1:0] error_cnt;
 
@@ -130,10 +130,11 @@ end
 
 
 always @(posedge HCLK) begin
-  if(HREADY) begin
+  if(HSEL) begin
     max_addr_calc <= pipelined_haddr[1] + pipelined_hsize[1];
     if(max_addr_calc >= MEMORY_SIZE)begin
       error <= 1'b1;
+      error_cnt <= 2'b01;
       HRESP <= `ERROR;
     end
   end
@@ -147,7 +148,7 @@ genvar i;
           always @(posedge HCLK, negedge HRESETn) begin
             if(~HRESETn) begin
                paral_reg_for_data[((i+1)*8)-1:i*8] <= 8'h00;
-            end else if(i <= pipelined_hsize[1] && ~pipelined_hwrite[1] && ~pipelined_hwrite[0])begin
+            end else if(i <= pipelined_hsize[1] && ~pipelined_hwrite[1])begin
               paral_reg_for_data[((i+1)*8)-1:i*8] <= memory[pipelined_haddr[1][10:0]+i];
             end
           end
@@ -160,7 +161,7 @@ genvar i;
       generate
         for (i = 0;i < MAX_HSIZE ; i = i + 1) begin
           always @(posedge HCLK) begin
-            if(i <= pipelined_hsize[1] && pipelined_hwrite[0]  && pipelined_hwrite[1])begin
+            if(i <= pipelined_hsize[1]  && pipelined_hwrite[1])begin
               memory[pipelined_haddr[1]+i] <= pipelined_hwdata[((i+1)*8)-1:i*8];
             end 
           end

@@ -23,9 +23,10 @@
 `define FourWord_line    3'b100
 `define EightWord_line   3'b101
 `define SixteenWord_line 3'b110
-`define ThirtyTwoWord_line  3'b111;
+`define ThirtyTwoWord_line  3'b111
 
 //HRESP 
 `define OKAY    1'b0
-`define ERROR   1'b1;
+`define ERROR   1'b1
 
+`define BUS_WIDTH  32

@@ -71,15 +71,16 @@ initial begin
     master.read(32'h02,`Byte);
 
     
-    //#20 addr = 32'hFFF;
-    //write = 1'b1;
-    //data = 32'hFFFF;
-    //data_size = `Word;  
-
-   // #20 addr = 32'hAA;
-  //  write = 1'b1;
-   // data = 32'hFFFF;
-  //  data_size = `Word;  
+    #20 
+    $display($time);
+    $display("Call write task");
+    master.write(32'h04, 32'hFFFF, `Word);
+   
+   
+    #20 
+    $display($time);
+    $display("Call write task");
+    master.write(32'h08, 32'hAA, `Byte);  
 
 end
 

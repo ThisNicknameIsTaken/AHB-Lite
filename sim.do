@@ -29,10 +29,17 @@ add wave /Top_tb/slave/pipelined_hsize
 add wave /Top_tb/master/mem
 add wave /Top_tb/master/pipeline_command
 add wave /Top_tb/master/task_finished
-add wave /Top_tb/master/addr_phase_finished
-add wave /Top_tb/master/data_phase_finished
+
 add wave /Top_tb/master/error_low
 add wave /Top_tb/master/pipelined_data
+
+add wave /Top_tb/master/write_counter
+add wave /Top_tb/master/read_counter
+
+add wave /Top_tb/master/read_finished
+add wave /Top_tb/master/write_finished
+
+
 
 onbreak resume
 

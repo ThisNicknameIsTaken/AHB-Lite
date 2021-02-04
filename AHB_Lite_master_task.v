@@ -39,36 +39,57 @@ reg [`BUS_WIDTH-1:0] pipelined_data [1:0];
 reg [2:0] pipeline_size;
 reg [2:0] pipeline_command;
 
-reg addr_phase_finished, data_phase_finished; //are these phases awaiting
 
+reg [2:0] write_counter;
+reg [1:0] read_counter;
 
-wire task_finished = (addr_phase_finished && data_phase_finished);
+reg read_finished;
+reg write_finished;
+
+wire task_finished = read_finished && write_finished;
+
 
 wire error_low     =  (!HREADY && HRESP); // Hready is low and ERROR
 
 always @(*) begin
     if(task_finished || !HREADY || error_low)
             HTRANS <= `IDLE;
-    else
+    else begin
             HTRANS <= `NONSEQ;
+              if(pipeline_command[1] == 1'b1)
+                HWDATA <= pipelined_data[1];  
+
+    end
 end
 
 
 always @(posedge HCLK, negedge HRESETn) begin
     if(~HRESETn) begin
-        addr_phase_finished <= 1'b1;
-        data_phase_finished <= 1'b1;
         HTRANS <= `IDLE;
     end else begin
         if(HTRANS == `NONSEQ) begin
             
          
             pipelined_data[1]   <= pipelined_data[0];
+            pipeline_command[1] <= pipeline_command[0];
             pipeline_command[2] <= pipeline_command[1];
 
 
-            inner_write();
-            inner_read();
+          
+            if(write_counter < 2'b10) begin
+                inner_write();
+                write_finished <= 1'b0;
+            end else begin
+                write_finished <= 1'b1;
+            end
+
+
+            if(read_counter < 2'b11) begin
+                inner_read();
+                read_finished <= 1'b0;
+            end else begin
+                read_finished <= 1'b1;
+            end
 
         end       
     end
@@ -86,8 +107,10 @@ input [2:0] size;
 
 begin 
     @(posedge HCLK) begin
-    addr_phase_finished = 1'b0;
-    data_phase_finished = 1'b0;
+        
+    write_counter = 2'b00;
+    write_finished = 1'b0;
+
     pipelined_addr = addr;
     pipelined_data[0] = data;
     pipeline_size = size;
@@ -102,16 +125,14 @@ endtask
 //Task only for inner module usage
 task  inner_write;
 begin
-  //  @(posedge HCLK) begin
            $display($time);
         $display("write");
         
-        if(pipeline_command[0] == 1'b1 && HREADY && ~error_low) begin
-           
+        if(pipeline_command[0] == 1'b1 && HREADY && !error_low) begin
+            write_counter = write_counter + 1'b1;
               $display($time);
-            $display("Write addr phase");
-              pipeline_command[1] <= pipeline_command[0];
-
+              $display("Write addr phase");
+    
 
             HADDR  = pipelined_addr;
             HWRITE = 1'b1;
@@ -120,16 +141,15 @@ begin
             HBURST = `SINGLE;
             HPROT  = 4'b0011;
             HMASTLOCK = 1'b0;
-            addr_phase_finished = 1'b1;
+            
+
         end
 
         if(pipeline_command[1] == 1'b1) begin
             $display($time);
             $display("Write data phase");
+            write_counter = write_counter + 1'b1;
             
-
-            HWDATA = pipelined_data[0];
-            data_phase_finished = 1'b1;
         end
   //  end
 end
@@ -146,8 +166,9 @@ input [2:0] size;
 
 begin
         @(posedge HCLK) begin
-            addr_phase_finished = 1'b0;
-            data_phase_finished = 1'b0;
+            read_counter = 2'b00;    
+            read_finished = 1'b0;
+
             pipelined_addr = addr;
             pipeline_size = size;
             pipeline_command[0] = 1'b0;
@@ -162,15 +183,14 @@ endtask
 //Task only for inner module usage
 task  inner_read;
 begin
-  //  @(posedge HCLK) begin
            $display($time);
         $display("read");
-        if(pipeline_command[0] == 1'b0 && HREADY && ~error_low) begin
+        if(pipeline_command[0] == 1'b0 && HREADY && !error_low) begin
 
             $display($time);
             $display("Read addr phase");
-               pipeline_command[1] <= pipeline_command[0];
 
+            read_counter <= read_counter + 1'b1;
             HADDR  = pipelined_addr;
             HWRITE = 1'b0;
             HSIZE  = pipeline_size;
@@ -178,18 +198,17 @@ begin
             HBURST = `SINGLE;
             HPROT  = 4'b0011;
             HMASTLOCK = 1'b0;
-            addr_phase_finished = 1'b1;
+            
+
         end
 
-        if(pipeline_command[2] == 1'b0) begin
+        if(pipeline_command[1] == 1'b0) begin
             $display($time);
             $display("Read capture data phase");
 
-
+            read_counter <= read_counter + 1'b1;
             mem = HRDATA;
-            data_phase_finished = 1'b1;
         end
-   // end
 end
 
 

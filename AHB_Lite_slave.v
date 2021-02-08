@@ -82,7 +82,7 @@ always @(posedge HCLK, negedge HRESETn) begin
     HRESP <= `OKAY;
 
   end else begin
-    if(HSEL && HREADY) begin
+    if(HSEL && HREADY && HTRANS == `NONSEQ) begin
       pipelined_haddr <= HADDR;
   
       

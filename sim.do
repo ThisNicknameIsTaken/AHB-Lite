@@ -38,7 +38,8 @@ add wave /Top_tb/master/read_counter
 
 add wave /Top_tb/master/read_finished
 add wave /Top_tb/master/write_finished
-
+add wave /Top_tb/master/data_pending
+add wave /Top_tb/master/read_pending
 
 
 onbreak resume

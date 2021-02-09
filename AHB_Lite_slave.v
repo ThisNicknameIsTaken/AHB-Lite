@@ -59,10 +59,11 @@ reg [`BUS_WIDTH-1:0] paral_reg_for_data;
 reg [`BUS_WIDTH-1:0] paral_reg_for_addr;
 
 //slave registers
-reg [32:0] max_addr_calc;
+reg [32:0] max_addr_calc; // change to 10:0
 reg error;
 reg [1:0] error_cnt;
-
+reg pipelined_hsel;
+reg pipelined_htrans;
 
 always @(*) begin
   HRDATA <= paral_reg_for_data;
@@ -82,6 +83,8 @@ always @(posedge HCLK, negedge HRESETn) begin
     HRESP <= `OKAY;
 
   end else begin
+    pipelined_hsel <= HSEL;
+    pipelined_htrans <= HTRANS;
     if(HSEL && HREADY && HTRANS == `NONSEQ) begin
       pipelined_haddr <= HADDR;
   
@@ -133,7 +136,7 @@ end
 
 always @(posedge HCLK) begin
   if(HSEL) begin
-    max_addr_calc <= pipelined_haddr + pipelined_hsize;
+    max_addr_calc <= pipelined_haddr[9:0] + pipelined_hsize;
     if(max_addr_calc >= MEMORY_SIZE)begin
       error <= 1'b1;
       error_cnt <= 2'b01;
@@ -149,9 +152,9 @@ genvar i;
         for (i = 0;i < MAX_HSIZE ; i = i + 1) begin
           always @(posedge HCLK, negedge HRESETn) begin
             if(~HRESETn || i > pipelined_hsize) begin
-               paral_reg_for_data[((i+1)*8)-1:i*8] <= 8'h00;
-            end else if(i <= HSIZE && !HWRITE)begin
-              paral_reg_for_data[((i+1)*8)-1:i*8] <= memory[HADDR[7:0]+i];
+               paral_reg_for_data[((i+1)*8)-1:i*8] <= 32'h00;
+            end else if(i <= HSIZE && !HWRITE && HSEL)begin
+              paral_reg_for_data[((i+1)*8)-1:i*8] <= memory[HADDR[9:0]+i];
             end
           end
         end
@@ -163,8 +166,8 @@ genvar i;
       generate
         for (i = 0;i < MAX_HSIZE ; i = i + 1) begin
           always @(posedge HCLK) begin
-            if(i <= pipelined_hsize  && pipelined_hwrite)begin
-              memory[pipelined_haddr+i] <= HWDATA[((i+1)*8)-1:i*8];
+            if(i <= pipelined_hsize  && pipelined_hwrite && (pipelined_hsel))begin
+              memory[pipelined_haddr[9:0]+i] <= HWDATA[((i+1)*8)-1:i*8];
             end 
           end
         end

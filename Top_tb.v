@@ -59,13 +59,6 @@ end
 
 initial begin
     
-    //Не работает нормально чтение 
-    //Сделать два слейва (1 с wait state, второй без)
-    //Соответсвено сделать дешифратор и мультиплексор для двух этих слейвов
-    //
-    //
-
-
     @(posedge HCLK) begin
         if(HRESETn) begin
         $display($time);
@@ -75,16 +68,8 @@ initial begin
     end
     
 
-    
-    @(posedge HCLK) begin
-        if(HRESETn) begin
-        $display($time);
-        $display("Call write task 2");
-        master.write(32'h02, 32'hAA, `Halfword);
-        end
-    end
-    
-    
+   
+
     @(posedge HCLK) begin
         if(HRESETn) begin
         $display($time);
@@ -194,29 +179,7 @@ initial begin
         end
     end
 
-    /*
-    #20
-    $display($time);
-    $display("Call read task");
-    master.read(32'h02,`Byte);
 
-    
-    #20
-    $display($time);
-    $display("Call read task");
-    master.read(32'h10,`Halfword);
-    
-    #20 
-    $display($time);
-    $display("Call write task");
-    master.write(32'h04, 32'hFFFF, `Word);
-   
-   
-    #20 
-    $display($time);
-    $display("Call write task");
-    master.write(32'h08, 32'hAA, `Byte);  
-    */
 
 end
 

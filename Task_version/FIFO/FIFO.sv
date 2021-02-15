@@ -1,4 +1,4 @@
-`include "AHB_Lite_defines.v"
+`include "AHB_Lite_defines.sv"
 
 module FIFO (clk, resetn);
 

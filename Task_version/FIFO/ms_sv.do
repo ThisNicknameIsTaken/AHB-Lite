@@ -11,7 +11,7 @@ vlib work
 
 # Compile all the Verilog sources in current folder into working library
 
-vlog test_non_one_slave.sv AHB_Lite_master_task.v AHB_Lite_slave.v AHB_Lite_defines.v AHB_Lite_decoder.v AHB_Lite_mux.v FIFO.sv
+vlog test_non_one_slave.sv AHB_Lite_master_task.sv AHB_Lite_slave.sv AHB_Lite_defines.sv AHB_Lite_decoder.sv AHB_Lite_mux.sv FIFO.sv
 
 # Open testbench module for simulation
 
@@ -42,6 +42,8 @@ add wave /test_non_one_slave/master/mem
 add wave /test_non_one_slave/slave0/max_addr_calc
 add wave /test_non_one_slave/slave1/max_addr_calc
 add wave /test_non_one_slave/slave1/MEMORY_SIZE
+add wave /test_non_one_slave/slave0/delay_counter
+add wave /test_non_one_slave/slave1/delay_counter
 
 onbreak resume
 

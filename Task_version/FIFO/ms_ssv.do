@@ -11,7 +11,7 @@ vlib work
 
 # Compile all the Verilog sources in current folder into working library
 
-vlog test_non_one_slave.sv AHB_Lite_master_task.v AHB_Lite_slave.v AHB_Lite_defines.v AHB_Lite_decoder.v AHB_Lite_mux.v FIFO.sv
+vlog test_non_one_slave.sv AHB_Lite_master_task.sv AHB_Lite_slave.sv AHB_Lite_defines.sv AHB_Lite_decoder.sv AHB_Lite_mux.sv FIFO.sv
 
 # Open testbench module for simulation
 

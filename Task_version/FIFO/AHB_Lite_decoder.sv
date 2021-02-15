@@ -1,4 +1,4 @@
-`include "AHB_Lite_defines.v"
+`include "AHB_Lite_defines.sv"
 
 module AHB_Lite_decoder(HADDR, HSEL0, HSEL1, HSEL2, HSEL3);
 

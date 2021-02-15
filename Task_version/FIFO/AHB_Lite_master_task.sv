@@ -1,4 +1,4 @@
-`include "AHB_Lite_defines.v"
+`include "AHB_Lite_defines.sv"
 
 module AHB_Lite_master_task(HREADY, HRESP, HRESETn, HCLK, HRDATA, HADDR, HWRITE, HSIZE, HBURST, HPROT, HTRANS, HMASTLOCK, HWDATA);
 
@@ -60,7 +60,7 @@ FIFO task_fifo(HCLK, HRESETn);
 
 //state control
 always @(*) begin
-    if(task_finished || !HREADY || error_low) begin
+    if(task_finished) begin
             HTRANS = `IDLE;
     end
 end
@@ -69,14 +69,17 @@ end
 
 
 
-//write control
+//write control   || (~data_pending && write_counter == 2'b01)
 always @(*) begin
-    if(data_pending && write_counter > 2'b01) begin
+    if((data_pending && write_counter > 2'b01)) begin
          HWDATA = pipelined_data[1];
          write_finished = 1'b1;
     end else begin
             if(pipeline_command[1] == 1'b1) begin
                 HWDATA = pipelined_data[1];
+                if(~data_pending && (write_counter == 2'b01)) begin
+                    write_finished = 1'b1; 
+                end
             end
 
             if(write_counter > 2'b01) begin

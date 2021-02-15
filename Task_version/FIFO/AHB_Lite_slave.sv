@@ -1,4 +1,4 @@
-`include "AHB_Lite_defines.v"
+`include "AHB_Lite_defines.sv"
 
 module AHB_Lite_slave(HCLK, HRESETn, HSEL, HADDR, HWRITE, HSIZE, HBURST, HPROT, HTRANS, HMASTLOCK, HREADY, HWDATA, HREADYOUT, HRESP, HRDATA);
 
@@ -142,7 +142,7 @@ end
 
 
 
-always @(*) begin
+always @(*) begin  
   if(delay_counter < DELAY) begin
     HREADYOUT = 1'b0;
   end else begin
@@ -156,7 +156,7 @@ always @(posedge HCLK) begin
     max_addr_calc <= HADDR[15:0] + HSIZE;
   end
 
-  if(HSEL && HREADY && HTRANS != `IDLE) begin
+  if(HSEL && HREADY && (HTRANS != `IDLE) && (DELAY > 0)) begin
     delay_counter <= 0;
     HREADYOUT <= 1'b0;
   end else if (delay_counter < DELAY) begin

@@ -35,21 +35,9 @@ initial begin
     
     @(posedge HCLK) begin
         fifo.write_in_fifo(1'b1,32'h00_00_00_01, 32'hFF, `Halfword);
-    end
-
-    @(posedge HCLK) begin
         fifo.write_in_fifo(1'b0,32'h00_00_00_02, 32'hCC, `Halfword);
-    end
-
-    @(posedge HCLK) begin
         fifo.write_in_fifo(1'b1,32'h00_00_20_00, 32'hAA, `Byte);
-    end
-
-    @(posedge HCLK) begin
         fifo.write_in_fifo(1'b0,32'h00_00_00_01, 32'hCF, `Halfword);
-    end
-
-    @(posedge HCLK) begin
         fifo.write_in_fifo(1'b1,32'h00_00_00_01, 32'hBF, `Halfword);
     end
 

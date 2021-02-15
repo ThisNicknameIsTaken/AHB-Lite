@@ -14,7 +14,7 @@ typedef struct {
 
 
 
-reg empty;
+wire empty;
 
 
 input clk;
@@ -36,7 +36,7 @@ always @(posedge clk, negedge resetn) begin
 end
 
 
-task write_in_fifo;
+task automatic write_in_fifo;
 
 input i_write;
 input [`BUS_WIDTH-1:0] i_addr;
@@ -59,11 +59,12 @@ endtask
 
 
 
-task read_from_fifo;
+task  read_from_fifo;
     output write;
-    output [2:0] size;
     output [`BUS_WIDTH-1:0] addr;
     output [`BUS_WIDTH-1:0] data;
+    output [2:0] size;
+    output o_empty;
 
     begin
       // @(posedge clk) begin
@@ -73,6 +74,10 @@ task read_from_fifo;
             addr =   mem[rd_pointer].haddr;
             data =   mem[rd_pointer].hdata;
             rd_pointer = rd_pointer + 1;
+            o_empty = 1'b0;
+            end else begin
+                o_empty = 1'b1;
+                $display("%0t Empty FIFO", $time);
             end
         //end
     end
